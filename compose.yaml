@@ -6,9 +6,18 @@ services:
     environment:
       EMPLOYEE_TOKEN: ${EMPLOYEE_TOKEN:-demo-employee}
       HR_TOKEN: ${HR_TOKEN:-demo-hr}
+      DEMO_MODE: "true"
+      EMPLOYEE_ACCOUNTS_JSON: '{"demo-colleague":"E0029"}'
+      EMPLOYEE_ID: ${EMPLOYEE_ID:-E0028}
+      CQ_DB_PATH: /app/.runtime/career-quest.sqlite3
+    volumes:
+      - career_data:/app/.runtime
   frontend:
     build: ./frontend
     ports:
       - "127.0.0.1:8080:80"
     depends_on:
       - backend
+
+volumes:
+  career_data:
