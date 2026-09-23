@@ -25,7 +25,7 @@ class CompletionRequest(BaseModel):
     expected_revision: int = Field(ge=1)
 
 
-def create_app(db_path=None, employee_token=None, hr_token=None, employee_id=None, accounts=None, demo_mode=None, managers=None):
+def create_app(db_path=None, employee_token=None, hr_token=None, employee_id=None, accounts=None, demo_mode=None, managers=None, coach_gateway=None):
     app = FastAPI(title="Career Quest", version="0.2.0")
     security = HTTPBearer()
     store = Store(db_path or os.environ.get("CQ_DB_PATH", ROOT/".runtime/career-quest.sqlite3"), load_directory(ROOT/"data"))
@@ -71,10 +71,10 @@ def create_app(db_path=None, employee_token=None, hr_token=None, employee_id=Non
     def identity(credentials: HTTPAuthorizationCredentials = Depends(security)):
         token = credentials.credentials
         for key, person_id in accounts.items():
-            if secrets.compare_digest(token,key): return {"role":"employee", "employee_id":person_id}
-        if hr_token and secrets.compare_digest(token, hr_token): return {"role":"hr"}
+            if secrets.compare_digest(token.encode("utf-8"),key.encode("utf-8")): return {"role":"employee", "employee_id":person_id}
+        if hr_token and secrets.compare_digest(token.encode("utf-8"), hr_token.encode("utf-8")): return {"role":"hr"}
         for key, ids in managers.items():
-            if secrets.compare_digest(token,key): return {"role":"manager", "employee_ids":ids}
+            if secrets.compare_digest(token.encode("utf-8"),key.encode("utf-8")): return {"role":"manager", "employee_ids":ids}
         raise HTTPException(401, "Invalid credentials")
 
     def employee_auth(role=Depends(identity)):
@@ -158,6 +158,8 @@ def create_app(db_path=None, employee_token=None, hr_token=None, employee_id=Non
             revision = tx["revision"] + 1
         return {"imported":True,"revision":revision}
 
+    from .coach import register_coach
+    register_coach(app, store.read, employee_auth, coach_gateway)
     from .sharing import register_sharing
     register_sharing(app, store, employee_auth, set(accounts.values()), demo_mode)
     return app

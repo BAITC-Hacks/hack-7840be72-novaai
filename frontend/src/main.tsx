@@ -1,5 +1,5 @@
 import {tr,setLocale,Locale} from './i18n';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import './style.css';
 import HrDashboard from './HrDashboard';
@@ -9,6 +9,7 @@ function App() {
  const [language,setLanguage]=useState<Locale>(()=>{const saved=localStorage.getItem('cq-language');return saved==='kk'||saved==='en'?saved:'ru';});
  setLocale(language);
     const cardId = new URLSearchParams(window.location.search).get("card");
+    const authEpoch=useRef(0);
     const [role, setRole] = useState('');
     const [token, setToken] = useState('');
     const [input, setInput] = useState('');
@@ -30,35 +31,36 @@ function App() {
         }
         return r.json();
     }
-    async function refresh() { setBusy(true); setError(''); try {
+    async function refresh() { const epoch=authEpoch.current; setBusy(true); setError(''); try {
         const session = await api('session');
+        if(epoch!==authEpoch.current)return;
         setRole(session.role);
         if (session.role === 'employee' && !cardId) {
             const p = await api('me');
             const r = await api('recommendations');
             if (p.revision !== r.revision)
                 throw new Error('Данные изменились. Обновите профиль.');
+            if(epoch!==authEpoch.current)return;
             setProfile(p);
             setResult(r);
         }
     }
     catch (e: any) {
-        setError(e.message);
+        if(epoch===authEpoch.current)setError(e.message);
     }
     finally {
-        setBusy(false);
+        if(epoch===authEpoch.current)setBusy(false);
     } }
     useEffect(() => { if (token)
         refresh(); }, [token]);
-    async function finish(id: string) { setBusy(true); setError(''); try {
+    async function finish(id: string) { const epoch=authEpoch.current; setBusy(true); setError(''); try {
         await api('activities/' + id + '/complete', 'POST', { expected_revision: profile.revision });
-        await refresh();
+        if(epoch===authEpoch.current)await refresh();
     }
     catch (e: any) {
-        setError(e.message);
-        setBusy(false);
+        if(epoch===authEpoch.current){setError(e.message);setBusy(false);}
     } }
-    function logout() { setToken(''); setRole(''); setProfile(null); setResult(null); setInput(''); setError(''); }
+    function logout() { authEpoch.current++; setBusy(false); setToken(''); setRole(''); setProfile(null); setResult(null); setInput(''); setError(''); }
     function theme(value: string) { setStyle(value); localStorage.setItem('cq-style', value); }
     return <div className={profile && !cardId ? "app-shell" : "shell"}><div className="language-switch"><label><span>Қазақша / Русский / English</span><select aria-label="Language / Тіл / Язык" value={language} onChange={e=>setLanguage(e.target.value as Locale)}><option value="kk">Қазақша</option><option value="ru">Русский</option><option value="en">English</option></select></label></div><header className={profile && !cardId ? "legacy-header" : ""}><a href="/" className="brand">{tr("CQ")}<span>{tr("CAREER QUEST")}</span></a><span className="private">{tr("Личное пространство · NovaAI")}</span></header>
  {tr(role === 'employee' && cardId ? <SharedView id={cardId} request={api} logout={logout}/> : (role === 'hr' || role === 'manager') ? <HrDashboard request={api} logout={logout} role={role}/> : !profile ? <main className="login"><p className="eyebrow">{tr("ТВОЯ СЛЕДУЮЩАЯ ГЛАВА")}</p><h1>{tr("Расти в профессии.")}<br />{tr("Развивай своего героя.")}</h1><p>{tr("Осмысленные шаги к следующему грейду.")}</p><form onSubmit={e => { e.preventDefault(); if (token === input)

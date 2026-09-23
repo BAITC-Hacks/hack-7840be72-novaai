@@ -8,3 +8,5 @@ export function tr(value:any):any{
  const key=value.trim();const translated=(dictionary as any)[key]?.[locale];
  return translated?value.replace(key,translated):value;
 }
+
+export function getLocale():Locale{return locale;}

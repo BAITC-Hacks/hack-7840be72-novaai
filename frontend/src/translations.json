@@ -802,5 +802,125 @@
   "Card unavailable or access revoked": {
     "kk": "Карточка қолжетімсіз немесе рұқсат қайтарылған",
     "en": "Card unavailable or access revoked"
+  },
+  "AI-наставник": {
+    "kk": "AI-тәлімгер",
+    "en": "AI coach"
+  },
+  "Поговорим о твоём росте.": {
+    "kk": "Дамуың туралы сөйлесейік.",
+    "en": "Let's talk about your growth."
+  },
+  "ТВОЙ ПЕРСОНАЛЬНЫЙ НАСТАВНИК": {
+    "kk": "СЕНІҢ ЖЕКЕ ТӘЛІМГЕРІҢ",
+    "en": "YOUR PERSONAL COACH"
+  },
+  "Разберём следующий шаг вместе": {
+    "kk": "Келесі қадамды бірге талдайық",
+    "en": "Let's explore your next step"
+  },
+  "Очистить диалог": {
+    "kk": "Диалогты тазарту",
+    "en": "Clear conversation"
+  },
+  "LLM подключена": {
+    "kk": "LLM қосылған",
+    "en": "LLM connected"
+  },
+  "Режим по правилам — LLM не подключена": {
+    "kk": "Ережелер режимі — LLM қосылмаған",
+    "en": "Rules mode — LLM not connected"
+  },
+  "Наставник видит только твой профиль. Он не может менять навыки, начислять баллы или подтверждать обучение.": {
+    "kk": "Тәлімгер тек сенің профиліңді көреді. Ол дағдыларды өзгерте алмайды, ұпай қоса алмайды немесе оқуды растай алмайды.",
+    "en": "Your coach can only see your profile. It cannot change skills, award points or verify training."
+  },
+  "При отправке вопрос и ограниченный контекст рекомендаций будут переданы настроенному AI-провайдеру. Не вводи конфиденциальные данные.": {
+    "kk": "Сұрақ пен ұсыныстардың шектеулі контексті бапталған AI-провайдерге жіберіледі. Құпия деректерді енгізбе.",
+    "en": "Your question and limited recommendation context will be sent to the configured AI provider. Do not enter confidential data."
+  },
+  "Что мне сделать для следующего грейда?": {
+    "kk": "Келесі деңгейге өту үшін не істеуім керек?",
+    "en": "What should I do for the next grade?"
+  },
+  "Почему System Design, а не Public Speaking?": {
+    "kk": "Неліктен Public Speaking емес, System Design?",
+    "en": "Why System Design rather than Public Speaking?"
+  },
+  "Как найти подходящего ментора?": {
+    "kk": "Сәйкес тәлімгерді қалай табуға болады?",
+    "en": "How can I find a suitable mentor?"
+  },
+  "Диалог с наставником": {
+    "kk": "Тәлімгермен диалог",
+    "en": "Conversation with coach"
+  },
+  "С чего начнём?": {
+    "kk": "Неден бастаймыз?",
+    "en": "Where shall we start?"
+  },
+  "Спроси о карьерной цели, разрывах в навыках или причинах рекомендаций.": {
+    "kk": "Мансаптық мақсат, дағды алшақтықтары немесе ұсыныстар себептері туралы сұра.",
+    "en": "Ask about your career target, skill gaps or recommendation reasons."
+  },
+  "Ты": {
+    "kk": "Сен",
+    "en": "You"
+  },
+  "Наставник": {
+    "kk": "Тәлімгер",
+    "en": "Coach"
+  },
+  "По правилам": {
+    "kk": "Ережелер бойынша",
+    "en": "Rule-based"
+  },
+  "Провайдер недоступен. Показан резервный ответ по данным.": {
+    "kk": "Провайдер қолжетімсіз. Деректерге негізделген балама жауап көрсетілді.",
+    "en": "Provider unavailable. Showing a fallback answer based on your data."
+  },
+  "Факты, на которых основан ответ": {
+    "kk": "Жауапқа негіз болған деректер",
+    "en": "Facts behind this answer"
+  },
+  "Целевой грейд:": {
+    "kk": "Мақсатты деңгей:",
+    "en": "Target grade:"
+  },
+  "Прирост:": {
+    "kk": "Өсім:",
+    "en": "Gain:"
+  },
+  "Завершено:": {
+    "kk": "Аяқталды:",
+    "en": "Completed:"
+  },
+  "Готовлю ответ…": {
+    "kk": "Жауап дайындалуда…",
+    "en": "Preparing an answer…"
+  },
+  "Твой вопрос": {
+    "kk": "Сенің сұрағың",
+    "en": "Your question"
+  },
+  "Например: какой навык развивать следующим?": {
+    "kk": "Мысалы: келесіде қай дағдыны дамыту керек?",
+    "en": "For example: which skill should I develop next?"
+  },
+  "Отправить": {
+    "kk": "Жіберу",
+    "en": "Send"
+  },
+  "Диалог хранится только на этом экране и очищается при выходе из раздела. Ответ модели может ошибаться — сверяйся с фактами.": {
+    "kk": "Диалог тек осы экранда сақталады және бөлімнен шыққанда жойылады. Модель жауабы қате болуы мүмкін — деректермен тексер.",
+    "en": "This conversation stays on this screen and clears when you leave the section. Model answers can be wrong — check the facts."
+  },
+  "Too many requests; try again in a minute": {
+    "kk": "Сұраулар тым көп; бір минуттан кейін қайталаңыз",
+    "en": "Too many requests; try again in a minute"
+  },
+  "Data changed; ask again using the updated profile": {
+    "kk": "Деректер өзгерді; жаңартылған профильмен қайта сұраңыз",
+    "en": "Data changed; ask again using the updated profile"
   }
 }
