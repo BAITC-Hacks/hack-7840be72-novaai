@@ -4,7 +4,7 @@ import io
 import json
 from datetime import date
 from pathlib import Path
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 from typing import Annotated, Literal
 
 Level = Annotated[int, Field(strict=True, ge=0, le=5)]
@@ -27,6 +27,16 @@ class Gain(Model):
 
 class Event(Model):
     mandatory: bool = False
+    due_date: str | None = None
+
+    @field_validator("due_date")
+    @classmethod
+    def valid_due_date(cls, value):
+        if value is not None:
+            parsed=date.fromisoformat(value)
+            if parsed.isoformat()!=value: raise ValueError("Expected YYYY-MM-DD")
+        return value
+
     id: Identifier
     title: Annotated[str, Field(min_length=1, max_length=500)]
     type: Annotated[str, Field(min_length=1, max_length=120)]

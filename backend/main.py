@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from .engine import recommend, complete, next_grade
 from .dataset import DatasetError, MAX_BYTES, load_directory, parse_files
 from .storage import Store
+from .reporting import register_reporting, mandatory_training
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -24,7 +25,7 @@ class CompletionRequest(BaseModel):
     expected_revision: int = Field(ge=1)
 
 
-def create_app(db_path=None, employee_token=None, hr_token=None, employee_id=None, accounts=None, demo_mode=None):
+def create_app(db_path=None, employee_token=None, hr_token=None, employee_id=None, accounts=None, demo_mode=None, managers=None):
     app = FastAPI(title="Career Quest", version="0.2.0")
     security = HTTPBearer()
     store = Store(db_path or os.environ.get("CQ_DB_PATH", ROOT/".runtime/career-quest.sqlite3"), load_directory(ROOT/"data"))
@@ -40,6 +41,13 @@ def create_app(db_path=None, employee_token=None, hr_token=None, employee_id=Non
     if any(not isinstance(k,str) or not k or not isinstance(v,str) or not v for k,v in accounts.items()):
         raise ValueError("Invalid employee account configuration")
     demo_mode = demo_mode if demo_mode is not None else os.environ.get("DEMO_MODE", "false").lower() == "true"
+    managers = managers if managers is not None else json.loads(os.environ.get("MANAGER_ACCOUNTS_JSON", "{}"))
+    if not isinstance(managers,dict): raise ValueError("Manager accounts must be a mapping")
+    for key, ids in managers.items():
+        if not isinstance(key,str) or not key or key in accounts or key == hr_token:
+            raise ValueError("Manager tokens must be distinct")
+        if not isinstance(ids,list) or any(not isinstance(value,str) or not value for value in ids):
+            raise ValueError("Manager scope must be a list of employee IDs")
     app.state.store = store
 
     @app.middleware("http")
@@ -65,6 +73,8 @@ def create_app(db_path=None, employee_token=None, hr_token=None, employee_id=Non
         for key, person_id in accounts.items():
             if secrets.compare_digest(token,key): return {"role":"employee", "employee_id":person_id}
         if hr_token and secrets.compare_digest(token, hr_token): return {"role":"hr"}
+        for key, ids in managers.items():
+            if secrets.compare_digest(token,key): return {"role":"manager", "employee_ids":ids}
         raise HTTPException(401, "Invalid credentials")
 
     def employee_auth(role=Depends(identity)):
@@ -87,7 +97,8 @@ def create_app(db_path=None, employee_token=None, hr_token=None, employee_id=Non
         ready = sum(min(person["skills"].get(k,0),v) for k,v in requirements.items())
         return {"employee":person,"target_grade":target,"requirements":requirements,"revision":revision,
             "readiness":round(100*ready/total) if total else 100, "demo_mode":demo_mode,
-            "history":[h for h in data["history"] if h["employee_id"] == person_id]}
+            "history":[h for h in data["history"] if h["employee_id"] == person_id],
+            "mandatory_training":mandatory_training(person,data)}
 
     @app.get("/api/health")
     def health(): return {"status":"ok","version":"0.2.0"}
@@ -118,20 +129,7 @@ def create_app(db_path=None, employee_token=None, hr_token=None, employee_id=Non
             except ValueError as error: raise HTTPException(403,str(error))
             return {"changed":tx["changed"],"profile":profile(data,tx["revision"]+int(tx["changed"]),person_id)}
 
-    @app.get("/api/hr/summary", dependencies=[Depends(hr_auth)])
-    def summary():
-        data, revision = store.read()
-        deficits = {}
-        no_step = 0
-        for person in data["employees"]:
-            target = next_grade(person)
-            for skill, info in data["skills"].items():
-                if person["skills"].get(skill,0) < info["requirements"].get(target,0):
-                    deficits[skill] = deficits.get(skill,0)+1
-            no_step += not recommend(person,data["events"],data["history"],data["skills"])["recommendations"]
-        participation = {status:sum(h["status"]==status for h in data["history"]) for status in ["completed","skipped","declined"]}
-        return {"employee_count":len(data["employees"]),"without_recommendations":no_step,
-            "skill_deficits":deficits,"participation":participation,"revision":revision}
+    register_reporting(app, store, identity)
 
     def prepare(payload):
         data = parse_files(payload.files)
