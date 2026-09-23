@@ -926,5 +926,153 @@
   "Токен должен содержать только латинские буквы, цифры и символы без пробелов. Для демо используйте demo-employee.": {
     "kk": "Токенде тек латын әріптері, сандар және бос орынсыз таңбалар болуы керек. Демо үшін demo-employee пайдаланыңыз.",
     "en": "Use only Latin letters, digits and symbols without spaces in the token. For the demo, use demo-employee."
+  },
+  "Все награды": {
+    "kk": "Барлық марапаттар",
+    "en": "All rewards"
+  },
+  "Для работы": {
+    "kk": "Жұмыс үшін",
+    "en": "For work"
+  },
+  "Для себя": {
+    "kk": "Өзің үшін",
+    "en": "For yourself"
+  },
+  "Для семьи и детей": {
+    "kk": "Отбасы мен балалар үшін",
+    "en": "For family and children"
+  },
+  "ТВОЙ РОСТ — ТВОИ ВОЗМОЖНОСТИ": {
+    "kk": "СЕНІҢ ДАМУЫҢ — СЕНІҢ МҮМКІНДІКТЕРІҢ",
+    "en": "YOUR GROWTH, YOUR OPPORTUNITIES"
+  },
+  "Профессиональный рост. Радость для близких.": {
+    "kk": "Кәсіби даму. Жақындарға қуаныш.",
+    "en": "Professional growth. Joy for loved ones."
+  },
+  "Закрывай разрывы в навыках и выбирай личные награды.": {
+    "kk": "Дағды алшақтықтарын жойып, жеке марапаттарды таңда.",
+    "en": "Close skill gaps and choose personal rewards."
+  },
+  "Демо-магазин: цены и награды условные. Реальные бонусы банк ещё не согласовал.": {
+    "kk": "Демо-дүкен: бағалар мен марапаттар шартты. Банк нақты бонустарды әлі бекіткен жоқ.",
+    "en": "Demo store: prices and rewards are illustrative. Real benefits have not been approved by the bank."
+  },
+  "100 Coins за каждый закрытый уровень разрыва в добровольной активности. Обязательное обучение не приносит Coins. В деморежиме завершение имитируется.": {
+    "kk": "Ерікті іс-шарада жабылған дағды алшақтығының әр деңгейі үшін 100 Coins. Міндетті оқу үшін Coins берілмейді. Демо режимінде аяқтау үлгіленеді.",
+    "en": "100 Coins per skill gap level closed through a voluntary activity. Mandatory training earns no Coins. Completion is simulated in demo mode."
+  },
+  "Демо-обмен завершён. Настоящий сертификат не выдаётся.": {
+    "kk": "Демо-айырбастау аяқталды. Нақты сертификат берілмейді.",
+    "en": "Demo exchange complete. No real voucher is issued."
+  },
+  "Обновить магазин": {
+    "kk": "Дүкенді жаңарту",
+    "en": "Refresh store"
+  },
+  "Загрузка…": {
+    "kk": "Жүктелуде…",
+    "en": "Loading…"
+  },
+  "Категории наград": {
+    "kk": "Марапат санаттары",
+    "en": "Reward categories"
+  },
+  "Подтверждение обмена": {
+    "kk": "Айырбастауды растау",
+    "en": "Confirm exchange"
+  },
+  "Будет списано:": {
+    "kk": "Шегеріледі:",
+    "en": "Cost:"
+  },
+  "Останется:": {
+    "kk": "Қалады:",
+    "en": "Remaining:"
+  },
+  "Подтвердить демо-обмен": {
+    "kk": "Демо-айырбастауды растау",
+    "en": "Confirm demo exchange"
+  },
+  "Отмена": {
+    "kk": "Бас тарту",
+    "en": "Cancel"
+  },
+  "Демо-обмен отключён": {
+    "kk": "Демо-айырбастау өшірілген",
+    "en": "Demo exchange disabled"
+  },
+  "Недостаточно Coins": {
+    "kk": "Coins жеткіліксіз",
+    "en": "Not enough Coins"
+  },
+  "Выбрать награду": {
+    "kk": "Марапатты таңдау",
+    "en": "Choose reward"
+  },
+  "История Coins": {
+    "kk": "Coins тарихы",
+    "en": "Coins history"
+  },
+  "Последние 100 операций. Начальный баланс — 0; импортированная история не начисляет Coins.": {
+    "kk": "Соңғы 100 операция. Бастапқы баланс — 0; импортталған тарих Coins қоспайды.",
+    "en": "Last 100 transactions. Starting balance is 0; imported history does not earn Coins."
+  },
+  "Пока нет операций. Начни с добровольного шага в своей траектории.": {
+    "kk": "Операциялар жоқ. Даму жолыңдағы ерікті қадамнан баста.",
+    "en": "No transactions yet. Start with a voluntary step in your career path."
+  },
+  "Развитие навыка": {
+    "kk": "Дағдыны дамыту",
+    "en": "Skill development"
+  },
+  "Демо-обмен": {
+    "kk": "Демо-айырбастау",
+    "en": "Demo exchange"
+  },
+  "Твои достижения приносят радость.": {
+    "kk": "Жетістіктерің қуаныш әкеледі.",
+    "en": "Your achievements bring joy."
+  },
+  "Книга для профессионального роста": {
+    "kk": "Кәсіби даму кітабы",
+    "en": "Professional development book"
+  },
+  "Сертификат на курс": {
+    "kk": "Курс сертификаты",
+    "en": "Course voucher"
+  },
+  "Фирменный термостакан": {
+    "kk": "Фирмалық термостақан",
+    "en": "Branded travel mug"
+  },
+  "Подписка на аудиокниги": {
+    "kk": "Аудиокітаптарға жазылым",
+    "en": "Audiobook subscription"
+  },
+  "Семейный поход в кино": {
+    "kk": "Отбасымен киноға бару",
+    "en": "Family cinema outing"
+  },
+  "Детский мастер-класс": {
+    "kk": "Балалар шеберлік сабағы",
+    "en": "Children’s workshop"
+  },
+  "Семейный сертификат в аквапарк": {
+    "kk": "Аквапаркке отбасылық сертификат",
+    "en": "Family water park voucher"
+  },
+  "Импорт полностью заменит датасет, прогресс, демо-баланс Coins и историю обменов.": {
+    "kk": "Импорт деректерді, прогресті, демо Coins балансын және айырбастау тарихын толық ауыстырады.",
+    "en": "Import replaces the dataset, progress, demo Coins balance and exchange history."
+  },
+  "Not enough Halyk Coins": {
+    "kk": "Halyk Coins жеткіліксіз",
+    "en": "Not enough Halyk Coins"
+  },
+  "Store data changed; refresh the store": {
+    "kk": "Дүкен деректері өзгерді; дүкенді жаңартыңыз",
+    "en": "Store data changed; refresh the store"
   }
 }

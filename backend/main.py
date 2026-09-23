@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from .engine import recommend, complete, next_grade
 from .dataset import DatasetError, MAX_BYTES, load_directory, parse_files
 from .storage import Store
+from .rewards import register_rewards, reward_amount
 from .reporting import register_reporting, mandatory_training
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -125,11 +126,17 @@ def create_app(db_path=None, employee_token=None, hr_token=None, employee_id=Non
                 raise HTTPException(409, "Data changed; refresh profile before completing activity")
             event = next((e for e in data["events"] if e["id"] == event_id), None)
             if not event: raise HTTPException(404, "Unknown activity")
+            coins = reward_amount(employee(data, person_id), event, data["skills"])
             try: tx["changed"] = complete(employee(data, person_id),event,data["history"])
             except ValueError as error: raise HTTPException(403,str(error))
-            return {"changed":tx["changed"],"profile":profile(data,tx["revision"]+int(tx["changed"]),person_id)}
+            earned = 0
+            if tx["changed"] and coins:
+                cursor = tx["db"].execute("INSERT OR IGNORE INTO coins(owner,amount,event_id) VALUES (?,?,?)", (person_id,coins,event_id))
+                earned = coins if cursor.rowcount else 0
+            return {"coins_earned":earned,"changed":tx["changed"],"profile":profile(data,tx["revision"]+int(tx["changed"]),person_id)}
 
     register_reporting(app, store, identity)
+    register_rewards(app, store, employee_auth, demo_mode)
 
     def prepare(payload):
         data = parse_files(payload.files)
@@ -153,6 +160,8 @@ def create_app(db_path=None, employee_token=None, hr_token=None, employee_id=Non
             if payload.expected_revision != tx["revision"]:
                 raise HTTPException(409,"Data changed since preview; preview again")
             tx["db"].execute("DELETE FROM shares")
+            tx["db"].execute("DELETE FROM coins")
+            tx["db"].execute("UPDATE wallet_meta SET epoch=epoch+1 WHERE id=1")
             tx["data"] = data
             tx["changed"] = True
             revision = tx["revision"] + 1

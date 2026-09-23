@@ -35,3 +35,9 @@ python -m unittest discover -s tests -v
 cd frontend
 pnpm build
 ```
+
+## Этап Halyk Store
+
+89 тестов прошли; сборка Vite прошла. В браузере на отдельной store-qa.sqlite3:
+начисление 100 за system-lab, предпросмотр обмена, списание до 0, история,
+запрет покупки при нехватке Coins, семейная категория и казахский интерфейс.

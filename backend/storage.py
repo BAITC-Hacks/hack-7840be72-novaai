@@ -13,6 +13,9 @@ class Store:
         with closing(self.connect()) as db, db:
             db.execute("CREATE TABLE IF NOT EXISTS state (id INTEGER PRIMARY KEY CHECK(id=1), revision INTEGER NOT NULL, payload TEXT NOT NULL)")
             db.execute("CREATE TABLE IF NOT EXISTS shares (id TEXT PRIMARY KEY, owner TEXT NOT NULL, recipients TEXT NOT NULL, card TEXT NOT NULL)")
+            db.execute("CREATE TABLE IF NOT EXISTS coins (id INTEGER PRIMARY KEY, owner TEXT NOT NULL, amount INTEGER NOT NULL, event_id TEXT, request_id TEXT, item_id TEXT, created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, UNIQUE(owner,event_id), UNIQUE(owner,request_id))")
+            db.execute("CREATE TABLE IF NOT EXISTS wallet_meta (id INTEGER PRIMARY KEY CHECK(id=1), epoch INTEGER NOT NULL)")
+            db.execute("INSERT OR IGNORE INTO wallet_meta VALUES (1,1)")
             db.execute("INSERT OR IGNORE INTO state VALUES (1, 1, ?)", (json.dumps(validate(initial)),))
 
     def connect(self):
