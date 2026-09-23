@@ -1,0 +1,13 @@
+[
+  {
+    "employee_id": "E0028",
+    "role": "Backend Engineer",
+    "grade": "Middle",
+    "tenure_months": 52,
+    "skills": {
+      "SK_SYSTEM_DESIGN": 2,
+      "SK_PUBLIC_SPEAKING": 2,
+      "SK_PYTHON": 3
+    }
+  }
+]

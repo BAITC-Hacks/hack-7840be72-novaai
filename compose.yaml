@@ -1,0 +1,14 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      EMPLOYEE_TOKEN: ${EMPLOYEE_TOKEN:-demo-employee}
+      HR_TOKEN: ${HR_TOKEN:-demo-hr}
+  frontend:
+    build: ./frontend
+    ports:
+      - "127.0.0.1:8080:80"
+    depends_on:
+      - backend

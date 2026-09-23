@@ -1,0 +1,4 @@
+employee_id,event_id,status,date
+E0028,speaking-club,skipped,2026-06-01
+E0028,speaking-club,skipped,2026-07-01
+E0028,speaking-club,declined,2026-08-01
