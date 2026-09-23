@@ -18,7 +18,17 @@ function App() {
     const [error, setError] = useState('');
     const [busy, setBusy] = useState(false);
     const [style, setStyle] = useState(localStorage.getItem('cq-style') || 'anime');
+    const invalidToken = 'Токен должен содержать только латинские буквы, цифры и символы без пробелов. Для демо используйте demo-employee.';
+    function validToken(value: string) { return /^[\x21-\x7E]+$/.test(value); }
+    function login() {
+        const clean = input.trim();
+        if (!validToken(clean)) { setError(invalidToken); return; }
+        setInput(clean); setError('');
+        if (token === clean) refresh();
+        else { authEpoch.current++; setToken(clean); }
+    }
     async function api(path: string, method = 'GET', body?: any) {
+        if (!validToken(token)) throw new Error(invalidToken);
         const r = await fetch('/api/' + path, { method, headers: { Authorization: 'Bearer ' + token, ...(body ? { 'Content-Type': 'application/json' } : {}) }, body: body ? JSON.stringify(body) : undefined });
         if (!r.ok) {
             let message = 'Не удалось выполнить запрос.';
@@ -63,11 +73,8 @@ function App() {
     function logout() { authEpoch.current++; setBusy(false); setToken(''); setRole(''); setProfile(null); setResult(null); setInput(''); setError(''); }
     function theme(value: string) { setStyle(value); localStorage.setItem('cq-style', value); }
     return <div className={profile && !cardId ? "app-shell" : "shell"}><div className="language-switch"><label><span>Қазақша / Русский / English</span><select aria-label="Language / Тіл / Язык" value={language} onChange={e=>setLanguage(e.target.value as Locale)}><option value="kk">Қазақша</option><option value="ru">Русский</option><option value="en">English</option></select></label></div><header className={profile && !cardId ? "legacy-header" : ""}><a href="/" className="brand">{tr("CQ")}<span>{tr("CAREER QUEST")}</span></a><span className="private">{tr("Личное пространство · NovaAI")}</span></header>
- {tr(role === 'employee' && cardId ? <SharedView id={cardId} request={api} logout={logout}/> : (role === 'hr' || role === 'manager') ? <HrDashboard request={api} logout={logout} role={role}/> : !profile ? <main className="login"><p className="eyebrow">{tr("ТВОЯ СЛЕДУЮЩАЯ ГЛАВА")}</p><h1>{tr("Расти в профессии.")}<br />{tr("Развивай своего героя.")}</h1><p>{tr("Осмысленные шаги к следующему грейду.")}</p><form onSubmit={e => { e.preventDefault(); if (token === input)
-        refresh();
-    else
-        setToken(input); }}><label>{tr("Токен доступа (сотрудник, HR или руководитель)")}<input type="password" required value={input} onChange={e => setInput(e.target.value)}/></label><button disabled={busy}>{tr("Войти →")}</button></form></main> : <EmployeeWorkspace profile={profile} result={result} style={style} theme={theme} api={api} finish={finish} busy={busy} logout={logout}/>)}
+ {tr(role === 'employee' && cardId ? <SharedView id={cardId} request={api} logout={logout}/> : (role === 'hr' || role === 'manager') ? <HrDashboard request={api} logout={logout} role={role}/> : !profile ? <main className="login"><p className="eyebrow">{tr("ТВОЯ СЛЕДУЮЩАЯ ГЛАВА")}</p><h1>{tr("Расти в профессии.")}<br />{tr("Развивай своего героя.")}</h1><p>{tr("Осмысленные шаги к следующему грейду.")}</p><form onSubmit={e => { e.preventDefault(); login(); }}><label>{tr("Токен доступа (сотрудник, HR или руководитель)")}<input type="password" required autoComplete="off" spellCheck={false} value={input} onChange={e => setInput(e.target.value)}/></label><button disabled={busy}>{tr("Войти →")}</button></form></main> : <EmployeeWorkspace profile={profile} result={result} style={style} theme={theme} api={api} finish={finish} busy={busy} logout={logout}/>)}
 
- {tr(error && <div className="error" role="alert">{tr(error)}<button onClick={refresh}>{tr("Повторить")}</button></div>)}</div>;
+ {tr(error && <div className="error" role="alert">{tr(error)}<button onClick={role ? refresh : login}>{tr("Повторить")}</button></div>)}</div>;
 }
 createRoot(document.getElementById('root')!).render(<App />);

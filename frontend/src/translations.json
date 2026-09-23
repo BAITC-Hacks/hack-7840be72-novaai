@@ -922,5 +922,9 @@
   "Data changed; ask again using the updated profile": {
     "kk": "Деректер өзгерді; жаңартылған профильмен қайта сұраңыз",
     "en": "Data changed; ask again using the updated profile"
+  },
+  "Токен должен содержать только латинские буквы, цифры и символы без пробелов. Для демо используйте demo-employee.": {
+    "kk": "Токенде тек латын әріптері, сандар және бос орынсыз таңбалар болуы керек. Демо үшін demo-employee пайдаланыңыз.",
+    "en": "Use only Latin letters, digits and symbols without spaces in the token. For the demo, use demo-employee."
   }
 }
