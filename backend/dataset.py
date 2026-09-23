@@ -4,12 +4,17 @@ import io
 import json
 from datetime import date
 from pathlib import Path
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, AfterValidator
 from typing import Annotated, Literal
 
 Level = Annotated[int, Field(strict=True, ge=0, le=5)]
 Identifier = Annotated[str, Field(min_length=1, max_length=120, pattern=r"^[A-Za-z0-9_.-]+$")]
 Grade = Literal["Junior", "Middle", "Senior", "Lead"]
+
+def iso_date(value):
+    if date.fromisoformat(value).isoformat()!=value: raise ValueError('Expected YYYY-MM-DD')
+    return value
+Day = Annotated[str, AfterValidator(iso_date)]
 
 class Model(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
@@ -20,6 +25,8 @@ class Employee(Model):
     grade: Grade
     tenure_months: Annotated[int, Field(ge=0, le=1200)]
     skills: dict[Identifier, Level]
+    as_of_date: Day | None = None
+    career_goal: dict[str, str] | None = None
 
 class Gain(Model):
     gain: Annotated[int, Field(ge=1, le=5)]
@@ -27,7 +34,7 @@ class Gain(Model):
 
 class Event(Model):
     mandatory: bool = False
-    due_date: str | None = None
+    due_date: Day | None = None
 
     @field_validator("due_date")
     @classmethod
@@ -41,20 +48,32 @@ class Event(Model):
     title: Annotated[str, Field(min_length=1, max_length=500)]
     type: Annotated[str, Field(min_length=1, max_length=120)]
     target_audience: Annotated[list[str], Field(min_length=1)]
-    skill_gains: Annotated[dict[Identifier, Gain], Field(min_length=1)]
+    skill_gains: dict[Identifier, Gain]
+    format: str | None = None
+    target_grades: list[Grade] = Field(default_factory=list)
+    prerequisites: dict[Identifier, Level] = Field(default_factory=dict)
+    upcoming_sessions: list[Day] | None = None
+    repeatable: bool = False
 
 class Skill(Model):
-    requirements: Annotated[dict[Grade, Level], Field(min_length=1)]
+    requirements: dict[Grade, Level]
+    role_requirements: dict[str, dict[Grade, Level]] = Field(default_factory=dict)
+    role_criticality: dict[str, dict[Grade, Annotated[int, Field(ge=1, le=10)]]] = Field(default_factory=dict)
+    name: str | None = None
     criticality: dict[Grade, Annotated[int, Field(ge=1, le=10)]] = Field(default_factory=dict)
 
 class History(Model):
     recommended: bool = False
     employee_id: Identifier
     event_id: Identifier
-    status: Literal["completed", "skipped", "declined"]
-    date: str
+    status: Literal["completed", "skipped", "declined", "in_progress", "dropped", "no_show", "overdue"]
+    due_date: Day | None = None
+    assigned_by: Literal["self", "manager", "hr"] | None = None
+    record_id: str | None = None
+    date: Day
 
 class Dataset(Model):
+    as_of_date: Day | None = None
     employees: Annotated[list[Employee], Field(min_length=1, max_length=10000)]
     events: Annotated[list[Event], Field(max_length=5000)]
     skills: Annotated[dict[Identifier, Skill], Field(min_length=1, max_length=1000)]
@@ -88,6 +107,15 @@ def validate(raw):
         for i, item in enumerate(result[collection]):
             for skill in item[key]:
                 if skill not in result["skills"]: issue(f"{collection}.{i}.{key}.{skill}", "Unknown skill")
+    for i, event in enumerate(result['events']):
+        if not event['mandatory'] and not event['skill_gains']:
+            issue(f'events.{i}.skill_gains', 'Voluntary activity needs skill gains')
+        for skill in event['prerequisites']:
+            if skill not in result['skills']: issue(f'events.{i}.prerequisites', 'Unknown skill')
+        for value in event['upcoming_sessions'] or []:
+            try:
+                if date.fromisoformat(value).isoformat()!=value: raise ValueError()
+            except ValueError: issue(f'events.{i}.upcoming_sessions', 'Expected YYYY-MM-DD')
     seen_history = set()
     for i, row in enumerate(result["history"]):
         if row["employee_id"] not in employees: issue(f"history.{i}.employee_id", "Unknown employee")
@@ -120,6 +148,9 @@ def parse_files(files):
             raw[filename[:-5]] = json.loads(files[filename].lstrip("\ufeff"), object_pairs_hook=unique_object)
         except (ValueError, RecursionError):
             raise DatasetError([{"path": filename, "message": "Invalid JSON or duplicate key"}])
+    if isinstance(raw['employees'], dict) and 'employees' in raw['employees']:
+        from .official import adapt
+        return validate(adapt(raw, files['activity_history.csv']))
     try:
         reader = csv.DictReader(io.StringIO(files["activity_history.csv"].lstrip("\ufeff")), strict=True)
         if reader.fieldnames not in (["employee_id", "event_id", "status", "date"], ["employee_id", "event_id", "status", "date", "recommended"]):

@@ -2,7 +2,7 @@
 from fastapi import Depends, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 from uuid import UUID
-from .engine import next_grade
+from .engine import next_grade, required_level
 
 CATALOG = [
     {"id":"book","category":"work","title":"Книга для профессионального роста","cost":100,"icon":"📚"},
@@ -22,7 +22,7 @@ def reward_amount(person, event, skills):
     units = 0
     for skill, rule in event["skill_gains"].items():
         current = person["skills"].get(skill, 0)
-        gap = max(0, skills[skill]["requirements"].get(target, 0) - current)
+        gap = max(0, required_level(skills[skill],person) - current)
         units += min(gap, rule["gain"], max(0, rule["max_level"] - current))
     return units * 100
 

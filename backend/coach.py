@@ -8,7 +8,7 @@ from typing import Literal
 import httpx
 from fastapi import Depends, HTTPException
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from .engine import recommend, next_grade
+from .engine import recommend, next_grade, event_format
 
 class Message(BaseModel):
     model_config=ConfigDict(extra="forbid",strict=True)
@@ -95,7 +95,7 @@ TEXT={
 def evidence_for(person, data):
     ranked=recommend(person,data['events'],data['history'],data['skills'])
     return {'grade':person['grade'],'target_grade':next_grade(person),
-        'recommendations':[{'event_id':r['event']['id'],'title':r['event']['title'],'format':r['event']['type'],
+        'recommendations':[{'event_id':r['event']['id'],'title':r['event']['title'],'format':event_format(r['event']),
                             'score':r['score'],'factors':r['factors']} for r in ranked['recommendations']],
         'alternatives':[{'event_id':r['event']['id'],'title':r['event']['title'],'score':r['score'],'factors':r['factors']} for r in ranked['alternatives'][:3]]}
 

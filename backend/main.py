@@ -7,7 +7,7 @@ from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, ConfigDict, Field
-from .engine import recommend, complete, next_grade
+from .engine import recommend, complete, next_grade, required_level
 from .dataset import DatasetError, MAX_BYTES, load_directory, parse_files
 from .storage import Store
 from .rewards import register_rewards, reward_amount
@@ -96,12 +96,12 @@ def create_app(db_path=None, employee_token=None, hr_token=None, employee_id=Non
     def profile(data, revision, person_id):
         person = employee(data, person_id)
         target = next_grade(person)
-        requirements = {k:v["requirements"].get(target,0) for k,v in data["skills"].items()}
+        requirements = {k:required_level(v,person) for k,v in data["skills"].items() if required_level(v,person)>0}
         total = sum(requirements.values())
         ready = sum(min(person["skills"].get(k,0),v) for k,v in requirements.items())
         return {"employee":person,"target_grade":target,"requirements":requirements,"revision":revision,
             "readiness":round(100*ready/total) if total else 100, "demo_mode":demo_mode,
-            "history":[h for h in data["history"] if h["employee_id"] == person_id],
+            "as_of_date":data.get("as_of_date"), "history":[h for h in data["history"] if h["employee_id"] == person_id],
             "mandatory_training":mandatory_training(person,data)}
 
     @app.get("/api/health")
@@ -153,7 +153,7 @@ def create_app(db_path=None, employee_token=None, hr_token=None, employee_id=Non
         warnings = []
         if not any(e["employee_id"]==employee_id for e in data["employees"]):
             warnings.append("Current employee account is absent; it will lose profile access after import. Configure EMPLOYEE_ID on the server.")
-        return {"counts":{k:len(v) for k,v in data.items()},"digest":digest,"revision":revision,"warnings":warnings}
+        return {"counts":{k:len(data[k]) for k in ["employees","events","skills","history"]},"as_of_date":data.get("as_of_date"),"digest":digest,"revision":revision,"warnings":warnings}
 
     @app.post("/api/hr/import", dependencies=[Depends(hr_auth)])
     def import_dataset(payload: ImportRequest):
