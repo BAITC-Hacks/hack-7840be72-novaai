@@ -1,0 +1,32 @@
+{
+  "SK_SYSTEM_DESIGN": {
+    "requirements": {
+      "Middle": 2,
+      "Senior": 4,
+      "Lead": 5
+    },
+    "criticality": {
+      "Senior": 3
+    }
+  },
+  "SK_PUBLIC_SPEAKING": {
+    "requirements": {
+      "Middle": 2,
+      "Senior": 3,
+      "Lead": 4
+    },
+    "criticality": {
+      "Senior": 1
+    }
+  },
+  "SK_PYTHON": {
+    "requirements": {
+      "Middle": 3,
+      "Senior": 4,
+      "Lead": 5
+    },
+    "criticality": {
+      "Senior": 2
+    }
+  }
+}

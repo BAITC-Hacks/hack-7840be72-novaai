@@ -1,0 +1,27 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      EMPLOYEE_TOKEN: ${EMPLOYEE_TOKEN:-demo-employee}
+      HR_TOKEN: ${HR_TOKEN:-demo-hr}
+      MANAGER_ACCOUNTS_JSON: '{"demo-manager":["E0028"]}'
+      DEMO_MODE: "true"
+      EMPLOYEE_ACCOUNTS_JSON: '{"demo-colleague":"E0029"}'
+      EMPLOYEE_ID: ${EMPLOYEE_ID:-E0028}
+      ALLOW_EXTERNAL_AI: ${ALLOW_EXTERNAL_AI:-false}
+      OPENAI_MODEL: ${OPENAI_MODEL:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      CQ_DB_PATH: /app/.runtime/career-quest.sqlite3
+    volumes:
+      - career_data:/app/.runtime
+  frontend:
+    build: ./frontend
+    ports:
+      - "127.0.0.1:8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  career_data:
