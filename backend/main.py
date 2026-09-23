@@ -32,7 +32,7 @@ class CompletionRequest(BaseModel):
 def create_app(db_path=None, employee_token=None, hr_token=None, employee_id=None, accounts=None, demo_mode=None, managers=None, coach_gateway=None):
     app = FastAPI(title="Career Quest", version="0.2.0")
     security = HTTPBearer()
-    store = Store(db_path or os.environ.get("CQ_DB_PATH", ROOT/".runtime/career-quest.sqlite3"), load_directory(ROOT/"data"))
+    store = Store(db_path or os.environ.get("CQ_DB_PATH", ROOT/".runtime/career-quest.sqlite3"), load_directory(os.environ.get("CQ_INITIAL_DATA_DIR", ROOT/"data")))
     employee_token = employee_token if employee_token is not None else os.environ.get("EMPLOYEE_TOKEN", "")
     hr_token = hr_token if hr_token is not None else os.environ.get("HR_TOKEN", "")
     employee_id = employee_id or os.environ.get("EMPLOYEE_ID", "E0028")

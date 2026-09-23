@@ -1,4 +1,4 @@
-﻿import socket
+import socket
 import tempfile
 import unittest
 from pathlib import Path
@@ -39,3 +39,18 @@ class ConfigTests(unittest.TestCase):
         stop(process);process.terminate.assert_called_once();process.wait.assert_called_once()
         exited=Mock();exited.poll.return_value=0
         stop(exited);exited.terminate.assert_not_called()
+
+
+class JudgeLauncherTests(unittest.TestCase):
+    def test_dataset_requires_separate_database(self):
+        from run import configure_run
+        with self.assertRaises(ValueError):configure_run({},dataset='data')
+    def test_employee_binding_and_offline(self):
+        from run import configure_run
+        env=configure_run({'ALLOW_EXTERNAL_AI':'true'},employee='E0030',database='.runtime/jury.sqlite3',dataset='data',offline=True)
+        self.assertEqual(env['EMPLOYEE_ID'],'E0030')
+        self.assertEqual(env['ALLOW_EXTERNAL_AI'],'false')
+        self.assertTrue(Path(env['CQ_INITIAL_DATA_DIR']).is_dir())
+    def test_invalid_employee(self):
+        from run import configure_run
+        with self.assertRaises(ValueError):configure_run({},employee='bad id')

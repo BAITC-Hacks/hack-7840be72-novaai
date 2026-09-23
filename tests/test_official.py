@@ -1,4 +1,4 @@
-﻿import copy
+import copy
 import csv
 import io
 import json
@@ -108,3 +108,25 @@ class OfficialTests(unittest.TestCase):
             self.assertNotIn('feedback_rating',str(people));self.assertNotIn('career_goal',str(people))
             self.assertEqual(c.get('/api/hr/summary',headers=hr).json()['employee_count'],200)
             self.assertEqual(c.post('/api/coach',headers=employee,json={'message':'Why this step?','language':'en'}).status_code,200)
+
+    def test_judge_other_employee_full_flow(self):
+        from unittest.mock import patch
+        from uuid import uuid4
+        class Offline:ready=False
+        with tempfile.TemporaryDirectory() as directory, patch.dict('os.environ',{'CQ_INITIAL_DATA_DIR':str(ROOT/'examples/official')}):
+            app=create_app(Path(directory)/'judge.sqlite3','employee','hr',employee_id='E0030',demo_mode=True,coach_gateway=Offline())
+            c=TestClient(app);employee={'Authorization':'Bearer employee'};hr={'Authorization':'Bearer hr'}
+            profile=c.get('/api/me',headers=employee).json()
+            self.assertEqual(profile['employee']['employee_id'],'E0030')
+            choices=c.get('/api/recommendations',headers=employee).json()['recommendations']
+            self.assertTrue(choices)
+            event_id=choices[0]['event']['id']
+            result=c.post('/api/activities/'+event_id+'/complete',headers=employee,json={'expected_revision':profile['revision']})
+            self.assertEqual(result.status_code,200)
+            self.assertGreater(result.json()['coins_earned'],0)
+            wallet=c.get('/api/store',headers=employee).json()
+            redeemed=c.post('/api/store/redeem',headers=employee,json={'item_id':'book','request_id':str(uuid4()),'expected_epoch':wallet['epoch']})
+            self.assertEqual(redeemed.status_code,200)
+            self.assertEqual(redeemed.json()['wallet']['balance'],wallet['balance']-100)
+            self.assertEqual(c.get('/api/hr/summary',headers=employee).status_code,403)
+            self.assertEqual(c.get('/api/hr/summary',headers=hr).json()['employee_count'],200)

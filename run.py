@@ -1,5 +1,6 @@
 """Run the local demo without Docker. Only manages processes it starts."""
 import argparse
+import json
 import os
 from pathlib import Path
 import shutil
@@ -58,9 +59,33 @@ def wait_ready(url, process, timeout=20):
         time.sleep(.2)
     raise RuntimeError('Server startup timed out. See logs in .runtime.')
 
+def configure_run(env, employee=None, database=None, dataset=None, offline=False):
+    import re
+    if employee:
+        if not re.fullmatch(r'[A-Za-z0-9_.-]{1,120}',employee):
+            raise ValueError('Invalid employee ID')
+        env['EMPLOYEE_ID']=employee
+    if database:
+        env['CQ_DB_PATH']=str((ROOT / database).resolve())
+    if dataset:
+        if not database:
+            raise ValueError('--dataset requires --database to protect the current demo')
+        location=(ROOT / dataset).resolve()
+        if not all((location/name).is_file() for name in ['employees.json','events.json','skills.json','activity_history.csv']):
+            raise ValueError('Dataset folder must contain the four JSON/CSV files')
+        env['CQ_INITIAL_DATA_DIR']=str(location)
+    if offline:
+        env['ALLOW_EXTERNAL_AI']='false'
+    return env
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--smoke', action='store_true', help='Start, check the proxy, then stop both servers')
+    parser.add_argument('--employee', help='Employee ID bound to the configured employee token')
+    parser.add_argument('--database', help='Separate SQLite database path')
+    parser.add_argument('--dataset', help='Initial dataset directory; requires --database. Existing databases are preserved.')
+    parser.add_argument('--offline', action='store_true', help='Disable external AI for this run')
     args = parser.parse_args()
     env = dict(os.environ)
     load_env(environ=env)
@@ -69,6 +94,9 @@ def main():
                 'MANAGER_ACCOUNTS_JSON':'{"demo-manager":["E0028"]}','ALLOW_EXTERNAL_AI':'false'}
     for key, value in defaults.items():
         env.setdefault(key, value)
+    configure_run(env,args.employee,args.database,args.dataset,args.offline)
+    if args.dataset and Path(env['CQ_DB_PATH']).exists():
+        print('Existing database preserved; use HR import to replace its dataset.',flush=True)
     python = ROOT / ('.venv/Scripts/python.exe' if os.name == 'nt' else '.venv/bin/python')
     vite = ROOT / 'frontend/node_modules/vite/bin/vite.js'
     if not python.is_file() or not vite.is_file():
@@ -98,7 +126,17 @@ def main():
             wait_ready(url,processes[1])
             print(f'\nCareer Quest is ready: {url}\nKeep this window open. Ctrl+C stops this instance.\nLogs: {runtime}',flush=True)
             if args.smoke:
-                print('Smoke check passed: frontend and backend proxy respond.',flush=True)
+                opener=urllib.request.build_opener(urllib.request.ProxyHandler({}))
+                responses={}
+                for endpoint in ['me','recommendations']:
+                    request=urllib.request.Request(url+'/api/'+endpoint,headers={'Authorization':'Bearer '+env['EMPLOYEE_TOKEN']})
+                    with opener.open(request,timeout=10) as response:
+                        responses[endpoint]=json.load(response)
+                if responses['me']['employee']['employee_id']!=env['EMPLOYEE_ID']:
+                    raise RuntimeError('Employee binding check failed')
+                if responses['me']['revision']!=responses['recommendations']['revision']:
+                    raise RuntimeError('Dataset changed during smoke check; retry')
+                print('Smoke check passed: frontend, proxy, selected employee and recommendations.',flush=True)
                 return
             while all(p.poll() is None for p in processes):
                 time.sleep(.5)
