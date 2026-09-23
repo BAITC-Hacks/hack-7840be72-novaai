@@ -1074,5 +1074,9 @@
   "Store data changed; refresh the store": {
     "kk": "Дүкен деректері өзгерді; дүкенді жаңартыңыз",
     "en": "Store data changed; refresh the store"
+  },
+  "LLM настроена — доступ проверяется при запросе": {
+    "kk": "LLM бапталған — қолжетімділік сұрау кезінде тексеріледі",
+    "en": "LLM configured — access checked when you send a message"
   }
 }

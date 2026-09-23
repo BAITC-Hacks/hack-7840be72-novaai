@@ -18,7 +18,7 @@ export default function Coach({request,revision}:any){
  }
  function clear(){generation.current++;setTurns([]);setError('');setQuestion('');setBusy(false);}
  return <section className="coach-panel panel"><div className="section-title"><div><p className="eyebrow">{tr('ТВОЙ ПЕРСОНАЛЬНЫЙ НАСТАВНИК')}</p><h2>{tr('Разберём следующий шаг вместе')}</h2></div><button className="secondary" onClick={clear} disabled={busy||!turns.length}>{tr('Очистить диалог')}</button></div>
- <p className="coach-mode">{status?.mode==='llm'?tr('LLM подключена'):tr('Режим по правилам — LLM не подключена')}</p>
+ <p className="coach-mode">{status?.mode==='llm'?tr('LLM настроена — доступ проверяется при запросе'):tr('Режим по правилам — LLM не подключена')}</p>
  <p className="hint">{tr('Наставник видит только твой профиль. Он не может менять навыки, начислять баллы или подтверждать обучение.')}</p>
  {status?.external_processing&&<p className="warning">{tr('При отправке вопрос и ограниченный контекст рекомендаций будут переданы настроенному AI-провайдеру. Не вводи конфиденциальные данные.')}</p>}
  <div className="coach-suggestions">{['Что мне сделать для следующего грейда?','Почему System Design, а не Public Speaking?','Как найти подходящего ментора?'].map(q=><button key={q} disabled={busy||!status} onClick={()=>ask(tr(q))}>{tr(q)}</button>)}</div>

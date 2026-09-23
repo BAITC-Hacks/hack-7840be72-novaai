@@ -13,6 +13,9 @@ from .storage import Store
 from .rewards import register_rewards, reward_amount
 from .reporting import register_reporting, mandatory_training
 
+from .config import load_env
+
+load_env()
 ROOT = Path(__file__).resolve().parent.parent
 
 class ImportRequest(BaseModel):
