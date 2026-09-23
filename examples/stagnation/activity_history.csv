@@ -1,0 +1,5 @@
+employee_id,event_id,status,date,recommended
+E0028,python-lab,completed,2025-01-15,true
+E0028,speaking-club,skipped,2026-09-01,true
+E0028,speaking-club,skipped,2026-09-02,true
+E0028,speaking-club,skipped,2026-09-03,true

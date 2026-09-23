@@ -2,6 +2,7 @@
 from datetime import date
 from fastapi import Depends, HTTPException
 from .engine import recommend, next_grade
+from .insights import stagnation
 
 
 def mandatory_training(person, data, today=None):
@@ -58,7 +59,7 @@ def register_reporting(app, store, identity):
         rows=[]
         for person in sorted(scoped(data,claims),key=lambda p:p["employee_id"]):
             rows.append({"employee_id":person["employee_id"],"role":person["role"],"grade":person["grade"],
-                "recommendation_state":recommendation_state(person,data),"mandatory_training":mandatory_training(person,data)})
+                "recommendation_state":recommendation_state(person,data),"mandatory_training":mandatory_training(person,data),"stagnation":stagnation(person,data["history"])})
         return {"employees":rows,"revision":revision}
 
     @app.get("/api/hr/employees/{person_id}")
@@ -67,4 +68,16 @@ def register_reporting(app, store, identity):
         person=next((p for p in scoped(data,claims) if p["employee_id"]==person_id),None)
         if not person: raise HTTPException(404,"Employee not found in your scope")
         return {"employee_id":person["employee_id"],"role":person["role"],"grade":person["grade"],
-            "recommendation_state":recommendation_state(person,data),"mandatory_training":mandatory_training(person,data),"revision":revision}
+            "recommendation_state":recommendation_state(person,data),"mandatory_training":mandatory_training(person,data),"stagnation":stagnation(person,data["history"]),"revision":revision}
+
+    @app.post("/api/hr/employees/{person_id}/support-proposal")
+    def support_proposal(person_id:str, claims=Depends(staff)):
+        data, revision=store.read()
+        person=next((p for p in scoped(data,claims) if p["employee_id"]==person_id),None)
+        if not person: raise HTTPException(404,"Employee not found in your scope")
+        candidates=recommend(person,data["events"],data["history"],data["skills"])["recommendations"]
+        return {"employee_id":person_id,"target_grade":next_grade(person),"revision":revision,
+            "mode":"rule_based_draft","sent":False,
+            "activities":[{"id":c["event"]["id"],"title":c["event"]["title"],"format":c["event"]["type"]} for c in candidates],
+            "mentor_request":{"status":"directory_required","focus_skills":list(dict.fromkeys(f["skill"] for c in candidates[:1] for f in c["factors"]))},
+            "signals":stagnation(person,data["history"])}

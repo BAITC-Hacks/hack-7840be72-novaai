@@ -30,7 +30,7 @@ class ReportingTests(unittest.TestCase):
     def test_hr_sees_service_profiles_only(self):
         rows=self.client.get('/api/hr/employees',headers=self.hr).json()['employees']
         self.assertEqual(len(rows),2)
-        for row in rows:self.assertEqual(set(row),{'employee_id','role','grade','recommendation_state','mandatory_training'})
+        for row in rows:self.assertEqual(set(row),{'employee_id','role','grade','recommendation_state','mandatory_training','stagnation'})
     def test_direct_other_employee_denied(self):
         self.assertEqual(self.client.get('/api/hr/employees/E9999',headers=self.manager).status_code,404)
         self.assertEqual(self.client.get('/api/hr/employees/E0028',headers=self.manager).status_code,200)

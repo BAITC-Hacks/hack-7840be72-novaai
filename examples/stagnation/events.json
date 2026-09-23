@@ -1,0 +1,44 @@
+[
+  {
+    "id": "system-lab",
+    "title": "Практикум: проектирование надёжных систем",
+    "type": "workshop",
+    "target_audience": [
+      "Backend Engineer"
+    ],
+    "skill_gains": {
+      "SK_SYSTEM_DESIGN": {
+        "gain": 1,
+        "max_level": 4
+      }
+    }
+  },
+  {
+    "id": "speaking-club",
+    "title": "Клуб публичных выступлений",
+    "type": "live",
+    "target_audience": [
+      "Backend Engineer"
+    ],
+    "skill_gains": {
+      "SK_PUBLIC_SPEAKING": {
+        "gain": 1,
+        "max_level": 4
+      }
+    }
+  },
+  {
+    "id": "python-lab",
+    "title": "Python: от кода к качеству",
+    "type": "workshop",
+    "target_audience": [
+      "Backend Engineer"
+    ],
+    "skill_gains": {
+      "SK_PYTHON": {
+        "gain": 1,
+        "max_level": 4
+      }
+    }
+  }
+]

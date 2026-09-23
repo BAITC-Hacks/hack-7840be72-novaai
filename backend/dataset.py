@@ -48,6 +48,7 @@ class Skill(Model):
     criticality: dict[Grade, Annotated[int, Field(ge=1, le=10)]] = Field(default_factory=dict)
 
 class History(Model):
+    recommended: bool = False
     employee_id: Identifier
     event_id: Identifier
     status: Literal["completed", "skipped", "declined"]
@@ -121,9 +122,13 @@ def parse_files(files):
             raise DatasetError([{"path": filename, "message": "Invalid JSON or duplicate key"}])
     try:
         reader = csv.DictReader(io.StringIO(files["activity_history.csv"].lstrip("\ufeff")), strict=True)
-        if reader.fieldnames != ["employee_id", "event_id", "status", "date"]:
+        if reader.fieldnames not in (["employee_id", "event_id", "status", "date"], ["employee_id", "event_id", "status", "date", "recommended"]):
             raise ValueError("CSV header must be employee_id,event_id,status,date")
         raw["history"] = list(reader)
+        for row in raw["history"]:
+            if "recommended" in row:
+                if row["recommended"] not in {"true","false"}: raise ValueError("recommended must be true or false")
+                row["recommended"]=row["recommended"]=="true"
     except (ValueError, csv.Error) as error:
         raise DatasetError([{"path":"activity_history.csv", "message":str(error)}])
     return validate(raw)
